@@ -340,8 +340,6 @@ object encoding key
 >
 >     2 有序集合保存的所有元素成员的长度都小于 `64` 字节
 
-## 场景
-
 ## 缓存一致性
 
 
@@ -356,6 +354,3 @@ redis-server & 后台进程启动
 redis-server /etc/redis/6379.conf
 ```
 
-- 
-
-## 面试题
