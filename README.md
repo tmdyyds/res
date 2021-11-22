@@ -5,10 +5,12 @@
 - [REDIS面试题](cache/redis/interview.md)
 
 ## 数据库
+#### MYSQL
 - [MySql笔记](mysql/mysql.md)
 - [MySql面试题](mysql/interview.md)
 
-## linux
+## LINUX
+#### VIM
 - [vim笔记](linux/vim/vim.md)
 
 ## alg
