@@ -1,22 +1,22 @@
 ## 开发语言
-#### Golang
+#### go
 - [go笔记](go/go.md)
 - [go设计模式](design/golang/go-design.md)
 
-#### Php
+#### php
 - [php设计模式](design/php/php_design.md)
 
 ## 缓存
-#### REDIS
-- [REDIS笔记](cache/redis/redis.md)
-- [REDIS常用场景](cache/redis/scene.md)
-- [REDIS面试题](cache/redis/interview.md)
+#### redis
+- [redis笔记](cache/redis/redis.md)
+- [redis常用场景](cache/redis/scene.md)
+- [redis面试题](cache/redis/interview.md)
 
 ## 数据库
 #### Mysql
-- [MySql笔记](mysql/mysql.md)
-- [MySql常用sql语句](mysql/mysql-sql.md)
-- [MySql面试题](mysql/interview.md)
+- [mysql笔记](mysql/mysql.md)
+- [mysql常用sql语句](mysql/mysql-sql.md)
+- [mysql面试题](mysql/interview.md)
 
 ## 网络
 #### tcpip
@@ -26,7 +26,7 @@
 #### http
 - [http笔记](network/http/http.md)
 
-## LINUX
+## linux
 - [linux笔记](linux/linux/linux.md)
 - [vim笔记](linux/vim/vim.md)
 
