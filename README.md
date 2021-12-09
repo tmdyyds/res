@@ -30,8 +30,8 @@
 - [linux笔记](linux/linux/linux.md)
 - [vim笔记](linux/vim/vim.md)
 
-#### 算法
+## 算法
 - [sort](alg/sort/sort.md)
 
-#### 计算机
+## 计算机
 - [基础知识](computer/basics/basics.md)
