@@ -1,3 +1,70 @@
+## 查询执行架构图
+
+<img src="image-20211125170208995.png" alt="image-20211125170208995" style="zoom:50%;" />
+
+## explain
+
+- https://dev.mysql.com/doc/refman/8.0/en/explain-output.html
+- type
+
+- Extra
+
+> https://dev.mysql.com/doc/refman/8.0/en/explain-output.html#explain-extra-information
+>
+> **Using union** 索引合并(高性能mysql中第五章(194页))，需要优化，应该检查查询语句和表结构，也可以ignore index让优化器忽略某些索引
+>
+> **Using index** 覆盖索引
+>
+> **Using where** 通过where条件来筛选引擎返回的记录
+
+- 修复或重建索引
+
+> alter table test ENGINE=INNODB
+
+## 优化
+
+- count
+
+> count(*) 统计行数，同时会统计列为null的行，试验版本：5.7.21
+>
+> count(列) 统计列值的数量，不包含列值为NULL(会统计值为null的列，也就是区分大小写，试验版本：5.7.21)
+
+## 维护DB
+
+- 重新生成索引统计信息
+
+> analyze table test 会加读锁
+
+- 碎片处理
+
+> optimize table test
+
+- 返回表索引信息
+
+> show index from test
+
+- 查询连接状态
+
+> show full processlist
+
+- 查看表有哪些索引
+
+> show index from test(表)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 MySql核心基础知识
 
 ## 知识点

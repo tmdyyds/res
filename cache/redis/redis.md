@@ -20,7 +20,7 @@ struct sdshdr {
 
 防止缓存溢出、泄漏、内存重分配等问题，SDS实现 **空间预分配和惰性空** 间释放优化策略。
 
-**空间预分配：** 主要用来优化SDS字符串增长，在给SDS扩展时，对SDS除分配所必要空间大小外，还会给SDS分配额外空间，额外空间具体：如果SDS小于1MB,那么Free就是len的大小，如果SDS大于1MB,则free则会多分配1MB。
+**空间预分配：** 主要用来优化SDS字符串增长，在给SDS扩展时，对SDS除分配所必要空间大小外，还会给SDS分配额外空间，额外空间具体：如果SDS小于1MB，那么Free就是len的大小，如果SDS大于1MB，则free则会多分配1MB。
 
 **惰性空间优化：** 主要用来优化缩短操作，在给SDS缩短操作时，序并不立即使用内存重分配来回收缩短后多出来的字节， 而是使用 free 属性将这些字节的数量记录起来， 并等待将来使用
 
@@ -55,7 +55,7 @@ typedef struct list {
     void (*free)(void *ptr);
     // 节点值对比函数
     //match 函数则用于对比链表节点所保存的值和另一个输入值是否相等。
-    int (*match)(void *ptr, void *key);
+    int (*match)(void *ptr， void *key);
 } list;
 ```
 
@@ -99,19 +99,19 @@ typedef struct dictType {
     unsigned int (*hashFunction)(const void *key);
 
     // 复制键的函数
-    void *(*keyDup)(void *privdata, const void *key);
+    void *(*keyDup)(void *privdata， const void *key);
 
     // 复制值的函数
-    void *(*valDup)(void *privdata, const void *obj);
+    void *(*valDup)(void *privdata， const void *obj);
 
     // 对比键的函数
-    int (*keyCompare)(void *privdata, const void *key1, const void *key2);
+    int (*keyCompare)(void *privdata， const void *key1， const void *key2);
 
     // 销毁键的函数
-    void (*keyDestructor)(void *privdata, void *key);
+    void (*keyDestructor)(void *privdata， void *key);
 
     // 销毁值的函数
-    void (*valDestructor)(void *privdata, void *obj);
+    void (*valDestructor)(void *privdata， void *obj);
 
 } dictType;
 
@@ -119,8 +119,8 @@ typedef struct dictType {
 //哈希表，它是实现字典的底层结构
 typedef struct dictht {
 
-    // 哈希表数组,每个table指向dictEntry的指针
-    //dictEntry table 默认是4,可以通过修改源码调整
+    // 哈希表数组，每个table指向dictEntry的指针
+    //dictEntry table 默认是4，可以通过修改源码调整
     dictEntry **table;
 
     // 哈希表大小
@@ -188,7 +188,7 @@ typedef struct zskiplistNode {
 typedef struct zskiplist {
 
     // 表头节点和表尾节点
-    struct zskiplistNode *header, *tail;
+    struct zskiplistNode *header， *tail;
 
     // 表中节点的数量
     unsigned long length;
@@ -290,11 +290,13 @@ object encoding key
 
 <img src="image-20211018171519295.png" alt="image-20211018171519295" style="zoom:50%;" />
 
+> <img src="image-20211209154823802.png" alt="image-20211209154823802" style="zoom:50%;" />
+>
 > - **字符串对象**
 >
 >     1 如果值可以用long类型表示，则为 int
 >
->     2 字符串值的长度大于 `44` 字节,专门用于保存短字符串的一种优化编码方式
+>     2 字符串值的长度大于 `44` 字节，专门用于保存短字符串的一种优化编码方式
 >
 >     3 其它使用raw，如果对int、embstr追加字符串，则会直接转换为raw编码
 >
@@ -339,6 +341,50 @@ object encoding key
 >     1 有序集合保存的元素数量小于 `128` 个
 >
 >     2 有序集合保存的所有元素成员的长度都小于 `64` 字节
+
+## redis重点
+
+#### 渐进式rehash
+
+> redis默认使用了两个全局哈希表，h1和h2，正常情况h1插入数据，h2不使用。随着h1数据增多，redis开始执行rehash操作：
+>
+> 1. 给h2分配更大的空间，例如是当前h1的两倍
+> 2. redis正常处理客户端请求，每处理一个请求就从h1中的第一个索引开始，把这个索引位置上的哈希桶拷贝到h2中，等下一次再处理时，再拷贝h1的下一个索引位置哈希桶。(主要逻辑：把h1中的数据重新**映射并且拷贝**到h2中)
+> 3. 释放h1空间
+>
+> <img src="image-20211209161607634.png" alt="image-20211209161607634" style="zoom:50%;" />
+
+#### Redis高性能的几个原因
+
+- redis大部分操作在内存完成
+- 高效的数据结构(跳表、hash)
+- 多路复用,使其在网络 IO 操作中能并发处理大量的客户端请求，实现高吞吐率
+
+<img src="image-20211209175339262.png" alt="image-20211209175339262" style="zoom:50%;" />
+
+## redis持久化
+
+#### AOF
+
+- 特点
+
+>  1. 先写命令，再记录日志，aof日志生成时为了性能考虑，不会检查命令对错，如果先记录log,有可能出现命令错误的情况
+>
+>  2. 记录redis的每一条命令
+>
+>  3. aof是在主线程记录写操作的日志(注意写入内存和日志缓存是一个线程，只是到日志缓冲区到磁盘这一步可以是，每次刷新，定时1秒刷新，文件系统刷新)。
+>
+>     **写会策略:** **Always**，同步写回：每个写命令执行完，立马同步地将日志写回磁盘；**Everysec**，每秒写回：每个写命令执行完，只是先把日志写到 AOF 文件的内存缓冲区，每隔一秒把缓冲区中的内容写入磁盘；**No**，操作系统控制的写回：每个写命令执行完，只是先把日志写到 AOF 文件的内存缓冲区，由操作系统决定何时将缓冲区内容写回磁盘
+
+- 日志文件太大
+
+> 性能问题： 系统本身对文件大小限制。文件太大再追加命令效率也会变低。发生宕机，aof文件故障恢复就会很慢
+>
+> aof重写机制：AOF的重写不是根据原有的AOF去做，而是根据当前内存数据库的数据，去生成一条条命令进行保存。和 AOF 日志由主线程写回不同，重写过程是由后台子进程 bgrewriteaof 来完成的(执行重写时，主线程fork出bgrewriteaof的线程，并且fork会把主线程的内存拷贝一份给到bgrewriteaof)。
+>
+> <img src="image-20211209182231211.png" alt="image-20211209182231211" style="zoom:50%;" />
+
+#### RDB
 
 ## 缓存一致性
 

@@ -1,12 +1,4 @@
-#### explain
-
-- Extra
-
-> Using union 索引合并(高性能mysql中第五章(194页))，需要优化，应该检查查询语句和表结构，也可以ignore index让优化器忽略某些索引
->
-> Using index 覆盖索引
-
-#### alter table 
+#### alter table
 
 - https://dev.mysql.com/doc/refman/5.6/en/alter-table.html 官网地址
 
@@ -28,3 +20,14 @@
 >
 > alter table test DROP INDEX idx_index
 
+- 重建索引
+
+>alter table test ENGINE=INNODB
+
+#### select
+
+- 强制使用索引
+
+> https://dev.mysql.com/doc/refman/8.0/en/index-hints.html
+>
+> select * from test **FORCE INDEX(col1)/USE INDEX (col1, col2)/IGNORE INDEX (col1)** where id = 1
