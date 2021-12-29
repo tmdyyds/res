@@ -13,7 +13,7 @@
 - [redis面试题](cache/redis/interview.md)
 
 ## 数据库
-#### Mysql
+#### mysql
 - [mysql笔记](mysql/mysql.md)
 - [mysql常用sql语句](mysql/mysql-sql.md)
 - [mysql面试题](mysql/interview.md)
